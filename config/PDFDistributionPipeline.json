@@ -8,7 +8,7 @@
             "mezzo_media_settings_method" : {
                 "mezzo_media_url"      : "https://www.mezzomedia.co.kr/insight_m?page={}&search_text=&year=&month=&tabs=1",
                 "output_file_name"     : "{}_Mezzo_Media_Data.xlsx",
-                "output_directory"     : "C:/Users/User/013.PDF_Distribution_Pipeline/data_repository/pdf_files",
+                "output_directory"     : "C:/Users/User/013.PDF_Distribution_Pipeline/data_repository/src/pdf_files",
                 "download_path"        : "C:/Users/User/Downloads",
                 "mezzo_media_table"    : "PDF_001_MEZZO_MEDIA",
                 "article_title_column" : "mezzo_media_article_title",

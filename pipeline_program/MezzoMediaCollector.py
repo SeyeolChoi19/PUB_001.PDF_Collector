@@ -70,14 +70,14 @@ class MezzoMediaCollector:
         def move_pdf_file_to_output_path(article_title: str):
             time.sleep(6)
             old_article_path = os.path.join(self.download_path, [file_name for file_name in os.listdir(self.download_path) if (file_name.lower()[-4:] == ".pdf")][0])
-            new_article_path = os.path.join(self.output_directory, "".join([character for character in article_title if (character not in string.punctuation)]))
+            new_article_path = os.path.join(self.output_directory, "".join([character for character in article_title if (character not in string.punctuation)])) + ".pdf"
             shutil.move(old_article_path, new_article_path)
 
             for (file_name, dictionary_key) in zip([old_article_path, new_article_path], ["mezzo_media_article_old_file", "mezzo_media_article_new_file"]):
                 self.mezzo_media_data_dictionary[dictionary_key].append(file_name)
             
         for (article_title, article_link) in zip(self.mezzo_media_data_dictionary["mezzo_media_article_title"], self.mezzo_media_data_dictionary["mezzo_media_article_link"]):
-            self.__selenium_object.driver.get(article_link)
+            self.selenium_object.driver.get(article_link)
             move_pdf_file_to_output_path(article_title)
 
 if (__name__ == "__main__"):
@@ -87,3 +87,4 @@ if (__name__ == "__main__"):
     mezzo_media_collector = MezzoMediaCollector(SeleniumSettings(**config_dict["PDFDistributionPipeline"]["MezzoMediaCollector"]["constructor"]))
     mezzo_media_collector.mezzo_media_settings_method(**config_dict["PDFDistributionPipeline"]["MezzoMediaCollector"]["mezzo_media_settings_method"])
     mezzo_media_collector.collect_mezzo_media_pdf_info()
+    mezzo_media_collector.download_mezzo_media_pdf_files()

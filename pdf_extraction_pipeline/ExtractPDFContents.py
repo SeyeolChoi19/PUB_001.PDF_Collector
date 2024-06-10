@@ -17,13 +17,12 @@ class ExtractPDFContents:
 
         for output_path in [incross_extraction_path, mezzo_extraction_path, nas_extraction_path]:
             os.makedirs(output_path, exist_ok = True)
-        
+    
+    def __extract_pagewise_contents(pdf_files_list: list[str]):
+        for file_name in pdf_files_list:
+            document_object = ppdf.open(file_name)
+
     def extract_pdf_file_contents(self):
-        def extract_pdf_contents(pdf_files_list: list[str]):
-            for file_name in pdf_files_list:
-                document_object = ppdf.open(file_name)
-
-
         input_paths_list  = [self.incross_media_pdf_path, self.mezzo_media_pdf_path, self.nas_media_pdf_path]
         output_paths_list = [self.incross_extraction_path, self.mezzo_extraction_path, self.nas_extraction_path]
 

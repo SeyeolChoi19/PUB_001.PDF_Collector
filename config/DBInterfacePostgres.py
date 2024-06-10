@@ -12,7 +12,7 @@ class DBInterface:
         self.password    = password 
         self.hostname    = hostname 
         self.server_name = server_name
-        self.engine      = create_engine(f"{sql_type}://{username}:{password}@{hostname}/{server_name}", echo = False)
+        self.engine      = create_engine(f"{sql_type}://{username}:{password}@{hostname}/{server_name}", echo = False, pool_size = 30, max_overflow = 30)
     
     def upload_to_database(self, table_name: str, df: pd.core.frame.DataFrame, exist_option: str = "append"):
         df.to_sql(table_name, con = self.engine, if_exists = exist_option, index = False)
@@ -23,6 +23,12 @@ class DBInterface:
         retrieved_data = self.engine.connect().execute(text(query_str)).fetchall()
 
         return retrieved_data
+    
+    def check_if_data_exists_in_column(self, table_id: str, column_name: str, filter_value: str):
+        query_string = f"SELECT (CASE WHEN (SELECT SUM(1) FROM \"{table_id}\" WHERE \"{column_name}\" = '{filter_value}') > 0 THEN 1 ELSE 0 END)"
+        query_result = self.engine.connect().execute(text(query_string)).fetchall()
+        
+        return query_result
         
     def delete_from_database(self, table_id: str, column_name: str,  filter_value: str, filter_condition: str = "equals"):
         filter_dict = {

@@ -1,20 +1,36 @@
 {
     "PDFDistributionPipeline" : {
-        "MezzoMediaCollector" : {
-            "constructor" : {
-                "driver_path"   : "C:/Users/User/013.PDF_Distribution_Pipeline/src/config/chromedriver.exe",
-                "max_wait_time" : 30
+        "constructor" : {
+            "driver_path"   : "C:/Users/User/013.PDF_Distribution_Pipeline/src/config/chromedriver.exe",
+            "max_wait_time" : 30
+        },
+        "market_report_collector_settings_method" : {
+            "download_path"         : "C:/Users/User/Downloads",
+            "output_file_name"      : "C:/Users/User/013.PDF_Distribution_Pipeline/src/data_repository/pdf_files/{}_Mezzo_Media_Data.xlsx",
+            "pdf_data_table_name"   : "PDF_001_PDF_INFO_TABLE",
+            "pdf_data_table_column" : "article_title",
+            "sql_type"              : "postgresql",
+            "hostname"              : "localhost",
+            "server_name"           : "PdfFileServer",
+            "target_report_types"   : [
+                "미디어이슈",
+                "미디어데이터클리핑",
+                "마켓인사이트"
+            ],
+            "incross_attributes" : {
+                "article_source"   : "incross_media", 
+                "website_url"      : "https://incross.com/ko/insight/report.asp?page={}&pageSize=12&serboardsort=&searchStr=",
+                "output_directory" : "C:/Users/User/013.PDF_Distribution_Pipeline/src/data_repository/pdf_files/incross_media/{}"
             },
-            "mezzo_media_settings_method" : {
-                "mezzo_media_url"      : "https://www.mezzomedia.co.kr/insight_m?page={}&search_text=&year=&month=&tabs=1",
-                "output_file_name"     : "{}_Mezzo_Media_Data.xlsx",
-                "output_directory"     : "C:/Users/User/013.PDF_Distribution_Pipeline/data_repository/src/pdf_files",
-                "download_path"        : "C:/Users/User/Downloads",
-                "mezzo_media_table"    : "PDF_001_MEZZO_MEDIA",
-                "article_title_column" : "mezzo_media_article_title",
-                "sql_type"             : "postgresql",
-                "hostname"             : "localhost",
-                "server_name"          : "PdfFileServer"
+            "mezzo_attributes" : {
+                "article_source"   : "mezzo_media", 
+                "website_url"      : "https://www.mezzomedia.co.kr/insight_m?page={}&search_text=&year=&month=&tabs=1",
+                "output_directory" : "C:/Users/User/013.PDF_Distribution_Pipeline/src/data_repository/pdf_files/mezzo_media/{}"
+            },
+            "nas_attributes" : {
+                "article_source"   : "nas_media", 
+                "website_url"      : "https://www.nasmedia.co.kr/%EB%82%98%EC%8A%A4%EB%A6%AC%ED%8F%AC%ED%8A%B8/%EC%A0%95%EA%B8%B0%EB%B3%B4%EA%B3%A0%EC%84%9C/page/{}/",
+                "output_directory" : "C:/Users/User/013.PDF_Distribution_Pipeline/src/data_repository/pdf_files/nas_attributes/{}"
             }
         }
     }

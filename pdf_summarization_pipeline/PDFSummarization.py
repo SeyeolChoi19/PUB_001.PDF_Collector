@@ -22,43 +22,33 @@ class PDFSummarization:
             api_key      = os.getenv(OPENAI_API_KEY)
         )
 
-    def __summarization(self, contents_list: list[str]):
-        while (len(contents_list) > 1): 
-            chunked_objects = self.__chunk_file_text(contents_list)
-            contents_list   = chunked_objects[1]
-            summarized_text = self.__api_object.chat.completion.create(
-                model    = self.gpt_model_name, 
-                messages = [{"role" : "user", "content" : f"Summarize this text within 1000 characters in Korean : {chunked_objects[0]}"}]
-            ).choices[0].message.content
+    def __json_file_io(self, file_name: str, operation_flag: str, file_contents_dict: dict = None):
+        with open(file_name, operation_flag, encoding = "utf-8") as f:
+            if (operation_flag == "r"):
+                return json.load(f)
+            elif (operation_flag == "w"):
+                json.dump(file_contents_dict, indent = 4, ensure_ascii = False)
 
-            if (len(contents_list) > 1):
-                contents_list.insert(0, summarized_text)
-    
-        return chunked_objects[0]
-    
-    def __chunk_file_text(self, contents_list: list[str]):
-        file_string = ""
+    def __text_summarization(self, page_content: str, page_file_flag: str = "page"):
+        character_limit = 150 if (page_file_flag == "page") else 4000 
 
-        for file_text in contents_list:
-            if (len(file_string) < 5000):
-                file_string += file_text 
-                contents_list.remove(file_text)
-        
-        return file_string, contents_list     
+        response = self.__api_object.chat.completion.create(
+            model    = self.gpt_model_name,
+            messages = [{"role" : "user", "content" : f"Summarize this text within {character_limit} characters in Korean. Don't give me anything else besides the summary : {page_content}"}]
+        ).choices[0].message.content
 
-    def read_and_summarize_file_contents(self):
-        def get_file_contents(json_files_list: list[str]):
+        return response 
+
+    def read_and_summarize_file_contents(self):                     
+        def file_and_page_wise_summarization(json_files_list: list[str]):
             for file_name in json_files_list:
-                with open(file_name, "r", encoding = "utf-8") as f:
-                    file_contents = json.load(f)
+                file_contents_dict                 = self.__json_file_io(file_name, "r")
+                page_wise_text_summaries           = [self.__text_summarization(page_content, "page") for page_content in file_contents_dict["file_contents"].values()]
+                file_summarization_string          = self.__text_summarization("\n".join(page_wise_text_summaries), "file")
+                file_contents_dict["file_summary"] = file_summarization_string
+                self.__json_file_io(file_name, "w", file_contents_dict)
 
-                file_contents["file_summary"] = self.__summarization(list(file_contents["file_contents"].values()))
-
-                with open(file_name, "w", encoding = "utf-8") as f:
-                    json.dump(file_contents, f, indent = 4, ensure_ascii = False)
-                         
         for file_path in [self.incross_media_json_path, self.mezzo_media_json_path, self.nas_media_json_path]:
             file_input_path = file_path.format(self.current_date)
-            json_files_list = [os.path.join(file_input_path, file_name) for file_name in os.listdir(file_input_path)]
-            get_file_contents(json_files_list)
-
+            json_files_list = [os.path.join(file_input_path, file_name) for file_name in os.listdir(file_input_path)]           
+            file_and_page_wise_summarization(json_files_list)

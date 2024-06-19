@@ -9,7 +9,7 @@ from config.EnvironmentVariables import OPENAI_ORG_KEY
 
 class PDFSummarization:
     def __init__(self):
-        self.current_date = str(dt.datetime.now().date())
+        self.current_date = "2024-06-17"
 
     def pdf_summarization_settings_method(self, incross_media_json_path: str, mezzo_media_json_path: str, nas_media_json_path: str, gpt_model_name: str):
         self.incross_media_json_path = incross_media_json_path 
@@ -32,7 +32,7 @@ class PDFSummarization:
     def __text_summarization(self, page_content: str, page_file_flag: str = "page"):
         character_limit = 150 if (page_file_flag == "page") else 4000 
 
-        response = self.__api_object.chat.completion.create(
+        response = self.__api_object.chat.completions.create(
             model    = self.gpt_model_name,
             messages = [{"role" : "user", "content" : f"Summarize this text within {character_limit} characters in Korean. Don't give me anything else besides the summary : {page_content}"}]
         ).choices[0].message.content
@@ -52,3 +52,11 @@ class PDFSummarization:
             file_input_path = file_path.format(self.current_date)
             json_files_list = [os.path.join(file_input_path, file_name) for file_name in os.listdir(file_input_path)]           
             file_and_page_wise_summarization(json_files_list)
+
+if (__name__ == "__main__"):
+    with open("./config/PDFDistributionConfig.json", "r", encoding = "utf-8") as f:
+        config_dict = json.load(f)
+
+    pdf_summarization = PDFSummarization()
+    pdf_summarization.pdf_summarization_settings_method(**config_dict["PDFDistributionPipeline"]["pdf_summarization_settings_method"])
+    pdf_summarization.read_and_summarize_file_contents()

@@ -8,9 +8,9 @@ from config.SeleniumSettings     import SeleniumSettings
 from config.EnvironmentVariables import PDF_COLLECTOR_USERNAME, PDF_COLLECTOR_PASSWORD 
 
 class MarketingReportsCollector:
-    def __init__(self, selenium_object: SeleniumSettings):
+    def __init__(self, selenium_object: SeleniumSettings, extraction_date: str = None):
         self.selenium_object = selenium_object 
-        self.current_date    = str(dt.datetime.now().date())
+        self.current_date    = str(dt.datetime.now().date()) if (extraction_date == None) else extraction_date
         self.selenium_object.driver_settings()
 
     def market_report_collector_settings_method(self, download_path: str, output_file_name: str, pdf_data_table_name: str, pdf_data_table_column: str, sql_type: str, hostname: str, server_name: str, target_report_types: list[str], incross_attributes: dict, mezzo_attributes: dict, nas_attributes: dict):                                               
@@ -98,8 +98,22 @@ class MarketingReportsCollector:
             inner_while_loop(1, attribute_dictionary)
 
     def download_pdf_files(self):
+        def sleep_until_file_exists():
+            file_status = False
+
+            while True:
+                try:
+                    old_file_name = [file_name for file_name in os.listdir(self.download_path) if (file_name.lower().endswith(".pdf"))][0]    
+                    file_status   = True
+                except IndexError:
+                    time.sleep(5)
+                    sleep_until_file_exists()
+
+                if (file_status):
+                    break             
+
         def move_pdf_file_to_output_path(article_title: str, attribute_dictionary: dict):
-            time.sleep(20)
+            sleep_until_file_exists()
             old_file_name    = [file_name for file_name in os.listdir(self.download_path) if (file_name.lower()[-4:] == ".pdf")][0]
             new_file_name    = "".join([character for character in article_title if (character not in string.punctuation)]) + ".pdf"
             old_article_path = os.path.join(self.download_path, old_file_name)
@@ -137,13 +151,3 @@ class MarketingReportsCollector:
             case "xlsx" : output_dataframe.to_excel(self.output_file_name, index = False)
             case "csv"  : output_dataframe.to_csv(self.output_file_name, index = False, encoding = "utf-8")
             case _      : raise Exception("Unrecognized file format")
-
-if (__name__ == "__main__"):
-    with open("./config/PDFDistributionConfig.json", "r", encoding = "utf-8") as f:
-        config_dict = json.load(f)
-    
-    marketing_report_collector = MarketingReportsCollector(SeleniumSettings(**config_dict["PDFDistributionPipeline"]["constructor"]))
-    marketing_report_collector.market_report_collector_settings_method(**config_dict["PDFDistributionPipeline"]["market_report_collector_settings_method"])
-    marketing_report_collector.collect_pdf_info()
-    marketing_report_collector.download_pdf_files()
-    marketing_report_collector.save_pdf_file_data()

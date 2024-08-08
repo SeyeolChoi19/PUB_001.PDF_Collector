@@ -99,7 +99,7 @@ class MarketingReportsCollector:
 
     def download_pdf_files(self):
         def move_pdf_file_to_output_path(article_title: str, attribute_dictionary: dict):
-            time.sleep(6)
+            time.sleep(20)
             old_file_name    = [file_name for file_name in os.listdir(self.download_path) if (file_name.lower()[-4:] == ".pdf")][0]
             new_file_name    = "".join([character for character in article_title if (character not in string.punctuation)]) + ".pdf"
             old_article_path = os.path.join(self.download_path, old_file_name)
